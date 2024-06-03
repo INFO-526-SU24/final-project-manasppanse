@@ -23,7 +23,7 @@ toc: true
 
 # 1 - Introduction
 
-This project investigates and analyzes the trends and contributions of the global entities in recording outer space objects. By aiming to understand how the number of objects recorded have changed over time, we can identify the key contributors.
+This project investigates and analyzes the trends and contributions of the global entities in launching outer space objects. By aiming to understand how the number of objects launched have changed over time, we can try to identify the key contributors.
 
 # 2 - Workspace Setup
 
@@ -31,13 +31,13 @@ This project investigates and analyzes the trends and contributions of the globa
 #| label: workspace-setup
 #| message: false
 
-# Plot theme
+# Plot Theme
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
 
-# set width of code output
+# Set Width of Code Output
 options(width = 65)
 
-# set figure parameters for knitr
+# Set Figure Parameters for knitr
 knitr::opts_chunk$set(
   fig.width = 7,        # 7" width
   fig.asp = 0.618,      # the golden ratio
@@ -46,8 +46,10 @@ knitr::opts_chunk$set(
   dpi = 300             # higher dpi, sharper image
 )
 
+# Loading Necessary Packages
 pacman::p_load("dplyr", "here", "knitr", "tidyverse")
 
+# Loading Necessary Dataset
 space_data <- read.csv(here("data/outer_space_objects.csv"))
 ```
 
@@ -59,9 +61,10 @@ space_data <- read.csv(here("data/outer_space_objects.csv"))
 
 glimpse(space_data)
 ```
-I have chosen this Outer Space Objects dataset. This dataset contains detailed information about the various entities recording outer space objects over the course of time. Each entry or record contains the entity's name, the ISO 3166-1 alpha-3 code for some specific entities, the year when this observation was captured, and the number of objects recorded.
 
-I am particularly interested in the growing field of space exploration and monitoring, understanding the trends in object recording, and identifying these major contributors can provide valuable insights in the progress and focus areas. This analysis could potentially highlight the advancements in space technologies and the collaborative efforts of different entities worldwide.
+I have chosen this Outer Space Objects dataset. This dataset contains detailed information about the various entities launching outer space objects over the course of time. Each entry or record contains the entity's name, the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for some specific entities, the year when this observation was captured, and the number of objects launched.
+
+I am particularly interested in the growing field of space exploration and monitoring, understanding the trends in object launch events, and identifying these major contributors can provide valuable insights in the progress and focus areas. This analysis could potentially highlight the advancements in space technologies and the collaborative efforts of different entities worldwide.
 
 This dataset also allows me to explore the dynamics of contributions from various countries. By analyzing these contributions over time, we can gain a deeper understanding of the shifts in focus and resource allocation in the domain of deep space monitoring. Such insights could inform strategics for future investments and collaborations in space exploration, monitoring, and soon enough, militarization.
 
@@ -80,32 +83,48 @@ The dataset "outer_space_objects.csv" contains 1175 entries with information on 
 
 # 4 - Questions
 
-(1) What are the trends in the number of outer space objects recorded over the years ?
+***After taking into consideration, feedback from my peers, questions have been altered.***
 
-(2) Which entities have contributed the most to the number of outer space objects recordings ? How has their contribution changed over time ?
+(1) What are the trends in the number of outer space objects launched over the years ?
+
+(2) Which entities have contributed the most to the number of outer space objects launched ? Considering the TOP 5 Economies in the world have changed over the years, how have their space launch programs reacted to the changes in their respective economies ?
+
+***Q3 is NOT a necessary question, but I'm just curious, so I'm going to attempt it.***
+
+(3) If we have to predict the next 10 years, will the entities with a great record in last 10 years hold their position ?
 
 # 5 - Analysis Plan
 
-1. Trends Over the Years :
--   Variables Involved : '`Year`', '`num_objects`'
+1.  Trends Over the Years :
+
+-   Variables Involved :
+    -   outer_space_objects.csv dataset : `Entity`, `Year`, `num_objects`
 -   Plan :
     -   Aggregate the data by year and then sum the number of objects.
     -   Plot a time series to visualize this trend.
-    
-2. Contributions by Entity :
--   Variables Involved : '`Entity`', '`Year`', '`num_objects`'
+
+2.  Contributions by Entity:
+-   Variables Involved :
+    -   outer_space_objects.csv dataset : `Entity`, `Year`, `num_objects`,
+    -   gdp_data.csv dataset : Calculated variable - `latest_gdp`
 -   Plan :
-    -   Aggregate the data by entity and year.
-    -   Plot the contributions over time to analyze changes and trends.
+    -   Aggregate the data by entity and year for the space launch data.
+    -   Use a bubble map to visualize the contributions over time.
+    -   Separately analyze GDP data to identify the top 5 economies over the years.
+    -   Integrate the insights from both datasets to answer the question about how space launch programs have reacted to changes in their respective economies.
 
 # 6 - Plan of Attack
+
+***I have something in mind for this, I just hope it's possible.***😣
 
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
 | Task Name                                  | Status     | Due     | Priority | Summary                                                                                                   |
 +:==========================================:+:==========:+:=======:+:========:+:=========================================================================================================:+
-| Project Proposal for Peer Review           |  complete  | 29-May  | High     | Submit the project proposal for peer review starting on May 29, 2024.                                     |
+| Project Proposal for Peer Review           | complete   | 29-May  | High     | Submit the project proposal for peer review starting on May 29, 2024.                                     |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Project Proposal for Instructor Review     | incomplete | 3-Jun   | High     | Submit the project proposal for instructor review starting on June 3, 2024, after peer feedback           |
+| Incorporate Peer Reviews                   | complete   | 2-Jun   | High     | Incorporate any changes suggested by my peers in the peer review sections.                                |
++--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
+| Project Proposal for Instructor Review     | complete   | 3-Jun   | High     | Submit the project proposal for instructor review starting on June 3, 2024, after peer feedback.          |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
 | Finalize Project Outline                   | incomplete | 4-Jun   | High     | Amend the `proposal.qmd` with feedback from classmates and professor.                                     |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
@@ -115,7 +134,11 @@ The dataset "outer_space_objects.csv" contains 1175 entries with information on 
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
 | Analyze Yearly Trends                      | incomplete |         | High     | Analyze the trends in the number of recorded outer space objects over the years.                          |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Entity Contribution Trends                 | incomplete |         | High     | Analyze how the contributions of the top entities have changed over time.                                 |
+| Entity Contribution Trends                 | incomplete |         | High     | Analyze how the contributions of the top entities have changed over time using a bubble map.              |
++--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
+| Analyze GDP Data for Top Economies         | incomplete |         | High     | Identify the top 5 economies over the years using GDP data and analyze their trends.                      |
++--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
+| Integrate Space Launch and GDP Insights    | incomplete |         | High     | Integrate insights from space launch and GDP data to answer space launch based on economy questions.      |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
 | Include all References & Citations         | inprogress | 24-Jun  | High     | List all the references & citations used in the project.                                                  |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
@@ -135,3 +158,7 @@ The dataset "outer_space_objects.csv" contains 1175 entries with information on 
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
 | Record the Presentation                    | incomplete | 24-Jun  | Low      | Complete and record the presentation.                                                                     |
 +--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
+
+# 7 - Citations
+
+***All the referred sources will go here.***
