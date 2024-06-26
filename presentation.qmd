@@ -1,7 +1,11 @@
 ---
-title: "Project title"
-subtitle: "INFO 526 - Summer 2024 - Final Project"
-author: "Author names"
+title: "Analysis of Outer Space Objects"
+subtitle: "INFO 526 - Summer 2024 - Final Project - Presentation"
+author:
+  - name: "Manas P Panse"
+    affiliations:
+      - name: "iSchool, University of Arizona"
+description: "A comparison of the Outer Space Objects recorded by different entities since the 1950s."
 title-slide-attributes:
   data-background-image: images/watercolour_sys02_img34_teacup-ocean.jpg
   data-background-size: stretch
@@ -10,156 +14,296 @@ title-slide-attributes:
 format:
   revealjs:
     theme:  ['data/customtheming.scss']
-  
 editor: visual
+code-annotations: hover
 execute:
-  echo: false
+  warning: false
+  message: false
+  error: false
 ---
 
+## 1 - Introduction
+
+<div style="font-size: 25px;">
+
+This project explores the intersection of outer space launch activities AND economic power. This project involves utilizing two datasets, one dataset contains detailed information about the various entities launching outer space objects over the course of time. Each entry or record contains the entity's name, the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for some specific entities, the year when this observation was captured, and the number of objects launched. The other dataset focuses on the BIG 5, i.e China, Germany, India, Japan, and the United States, where each record contains the country names, their [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3), [Indicator Name](https://data.worldbank.org/indicator/NY.GDP.MKTP.CD), the [Indicator Code](https://data.worldbank.org/indicator/NY.GDP.MKTP.PP.CD), and their GDP's since 2018 until 2023.
+
+The motivation behind choosing these datasets stems from the following reasons :
+
+1.  Technological Innovation.
+
+2.  Alignment with Economic Power.
+
+3.  Geopolitical Implications.
+
+    </div>
+
 ```{r}
-#| label: load-packages
-#| include: false
+#| label: Workspace-Setup
+#| warning: false
+#| message: false
+#| echo: false
 
-# Load packages here
-pacman::p_load(tidymodels,
-               tidyverse)
+# Plot Theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
 
+# Set Width of Code Output
+options(width = 65)
+
+# Set Figure Parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 7,        # 7" Width
+  fig.asp = 0.618,      # The Golden Ratio
+  fig.retina = 3,       # DPI Multiplier for Displaying HTML Output on Retina
+  fig.align = "center", # Center Align Figures
+  dpi = 300             # Higher DPI, Sharper Image
+)
+
+# Loading Packages
+pacman::p_load("dplyr", "ggplot2", "grid", "gridExtra", "gsubfn", "here", "knitr", "maps", "stringr", "tidyr", "tidyverse")
+pacman::p_load("gganimate", "forecast", "shiny")
+
+space_data <- read.csv(here("data/outer_space_objects.csv"))
+gdp_data <- read.csv(here("data/gdp_data_top_5.csv"))
+```
+
+## 1A - Trends Over The Years
+
+```{r}
+#| label: Trends-Over-the-Years-A
+#| warning: false
+#| message: false
+#| echo: false
+
+# Data-Aggregation-By-Year
+yearly_data <- space_data %>%
+  group_by(Year) %>%
+  summarize(total_objects = sum(num_objects))
+
+common_breaks <- c(1960, 1980, 2000, 2020)
+
+# Time-Series-Plot
+yearly_trend_plot_1 <- yearly_data %>%
+  ggplot(aes(x = Year, y = total_objects)) +
+  geom_smooth(se = FALSE, color = "blue") +
+  theme_minimal() +
+  labs(
+    title = "Outer Space Object Launches by Year (1957 - 2023)",
+    subtitle = "Global Launches Combined",
+    x = "Year",
+    y = "Total Number of Objects Launched",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to : Landers, Probes, Satellites, etc."
+  ) +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0.5)
+  ) +
+  annotate("rect", xmin = 2018, xmax = 2024, ymin = 750, ymax = 5400, alpha = 0, fill = "white", size = 0) +
+  annotate("rect", xmin = 2021, xmax = Inf, ymin = 750, ymax = 5400, alpha = 0, fill = "white", size = 0) +
+  scale_x_continuous(breaks = common_breaks)
+
+yearly_trend_plot_1
+```
+
+## 1B - Trends Over The Years
+
+```{r}
+#| label: Trends-Over-the-Years-B
+#| warning: false
+#| message: false
+#| echo: false
+
+# Time-Series-Plot
+yearly_trend_plot_2 <- yearly_data %>%
+  ggplot(aes(x = Year, y = total_objects)) +
+  geom_line(color = "blue") +
+  geom_point(color = "red", size = 0.75) +
+  theme_minimal() +
+  labs(
+    title = "Outer Space Object Launches by Year (1957 - 2023)",
+    subtitle = "Global Launches Combined - Focus Areas",
+    x = "Year",
+    y = "Total Number of Objects Launched",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to : Landers, Probes, Satellites, etc."
+  ) +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0.5)
+  ) +
+  annotate("rect", xmin = 2018, xmax = 2024, ymin = 250, ymax = 5400, alpha = .25, fill = "green", size = 0) +
+  annotate("rect", xmin = 2021, xmax = Inf, ymin = 250, ymax = 5400, alpha = .25, fill = "red", size = 0) +
+  scale_x_continuous(breaks = common_breaks)
+
+yearly_trend_plot_2
 ```
 
 ```{r}
-#| label: setup
-#| include: false
+#| label: Renaming-Columns-GDP-Data
+#| warning: false
+#| message: false
+#| echo: false
 
-# Plot theme
-ggplot2::theme_set(ggplot2::theme_minimal(base_size = 11))
+colnames(gdp_data) <- gsub("^X", "", colnames(gdp_data))
+colnames(gdp_data) <- gsub("\\.", " ", colnames(gdp_data))
+```
 
-# For better figure resolution
-knitr::opts_chunk$set(
-  fig.retina = 3, 
-  dpi = 300, 
-  fig.width = 6, 
-  fig.asp = 0.618 
+```{r}
+#| label: Space-Data-BIG-5-Filtering
+#| warning: false
+#| message: false
+#| echo: false
+
+# Filtering Space Launch Data for the BIG 5 using the GDP Data of the BIG 5
+top_5_countries <- gdp_data$`Country Name`
+
+space_data_top_5 <- space_data %>%
+  filter(Entity %in% top_5_countries)
+```
+
+```{r}
+#| label: Aggregating-Space-Data
+#| warning: false
+#| message: false
+#| echo: false
+
+launch_trends <- space_data_top_5 %>%
+  group_by(Year, Entity) %>%
+  summarise(total_objects = sum(num_objects), .groups = 'drop') %>%
+  ungroup()
+
+country_order <- c("United States", "China", "Germany", "Japan", "India")
+
+# Convert the 'Entity' column to a factor with the specified order
+launch_trends$Entity <- factor(launch_trends$Entity, levels = country_order)
+
+gdp_long <- gdp_data %>%
+  pivot_longer(cols = '2018':'2023', names_to = "Year", values_to = "GDP") %>%
+  mutate(Year = as.integer(Year))
+
+Space_GDP_Data <- launch_trends %>%
+  inner_join(gdp_long, by = c("Entity" = "Country Name", "Year"))
+
+Space_GDP_Data$GDP <- as.numeric(gsub(",", "", Space_GDP_Data$GDP))
+
+centroid_data <- data.frame(
+  Entity = c("China", "Germany", "India", "Japan", "United States"),
+  lat = c(38.07325481, 51.0830454, 23.58630057, 36.76738833, 38.82080892),
+  lon = c(104.6911386, 10.42617143, 81.17300409, 137.4693423, -96.33161661)
+)
+Space_GDP_Data_2 <- Space_GDP_Data %>%
+  inner_join(centroid_data, by = "Entity")
+```
+
+## 2A - BIG 5 Trends
+
+```{r}
+#| label: BIG-5-Bubble-Plot
+#| warning: false
+#| message: false
+#| echo: false
+
+# Line Plot of Number of Objects Launched by the BIG 5 Countries
+ggplot(launch_trends, aes(x = Year, y = total_objects, color = Entity)) +
+  geom_smooth(se = FALSE, size = 1) +
+  scale_color_manual(
+    values = c(
+      "United States" = "cyan",
+      "China" = "red",
+      "Germany" = "green",
+      "Japan" = "yellow",
+      "India" = "orange"
+    ),
+    name = "Country"
+  ) +
+  labs(
+    title = "Outer Space Object Launches by the BIG 5 by Year (1958 - 2023)",
+    x = "Year",
+    y = "Total Objects Launched",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to: Landers, Probes, Satellites, etc.\nGDP Data Collected from : World Bank Database."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    legend.position = "top",
+    legend.justification = c("center", "top"),
+    legend.background = element_rect(fill = alpha('white', 0.5)),
+    plot.caption = element_text(hjust = 0.5)
   )
 ```
 
-```{r}
-#| label: load-data
-#| include: false
-# Load data here
-data(mtcars)
-mtcars$speed <- mtcars$hp / mtcars$wt
-
-data("penguins")
-```
-
-# Using Quarto for presentations
-
-## Quarto
-
--   The presentation is created using the Quarto CLI
-
--   `##` sets the start of a new slide
-
-## Layouts
-
-You can use plain text
-
-::: columns
-::: {.column width="40%"}
--   or bullet points[^1]
-:::
-
-::: {.column width="60%"}
-or in two columns
-:::
-:::
-
-[^1]: And add footnotes
-
--   like
-
--   this
-
-## Code
-
-```{r, echo=FALSE}
-model <- lm(mpg ~ speed, data = mtcars) 
-
-model |> tidy()
-
-model |> glance()
-
-```
-
-## Plots
+## 2B - BIG 5 Recent Trends
 
 ```{r}
-penguins |>
-  mutate(species = ifelse(species == "Adelie", "Adelie", "Other")) |>
-  ggplot(aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
-  geom_point()
+#| label: BIG-5-World-Map
+#| warning: false
+#| message: false
+#| echo: false
+
+# Loading World Map Data
+world_map <- map_data("world")
+
+# Defining Country Colors
+country_colors <- c(
+  "United States" = "cyan",
+  "China" = "red",
+  "Germany" = "green",
+  "Japan" = "yellow",
+  "India" = "orange"
+)
+
+# Correcting Country Names in the World Map Data to match the Specified Country Names
+world_map <- world_map %>%
+  mutate(region = case_when(
+    region == "USA" ~ "United States",
+    region == "China" ~ "China",
+    region == "Germany" ~ "Germany",
+    region == "Japan" ~ "Japan",
+    region == "India" ~ "India",
+    TRUE ~ region
+  ))
+
+# Adding Color based on Country
+world_map <- world_map %>%
+  mutate(fill = case_when(
+    region == "United States" ~ "cyan",
+    region == "China" ~ "red",
+    region == "Germany" ~ "green",
+    region == "Japan" ~ "yellow",
+    region == "India" ~ "orange",
+    TRUE ~ "lightgray"
+  ))
+
+# Plotting Map
+ggplot() +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group, fill = fill), color = "white") +
+  geom_point(data = Space_GDP_Data_2, aes(x = lon, y = lat, size = total_objects), alpha = 0.1) +
+  scale_size(range = c(3, 15)) +
+  scale_fill_identity() +
+  labs(
+    title = "Geo - Distribution of Launches by the BIG 5 by Year (2018 - 2023)",
+    subtitle = "Size of the Points Represents Total Objects Launched",
+    x = "Longitude",
+    y = "Latitude",
+    size = "Total Objects",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to : Landers, Probes, Satellites, etc.\nGDP Data Collected from : World Bank Database."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    legend.position = "right",
+    legend.title = element_text(size = 7.5),
+    legend.text = element_text(size = 7),
+    plot.caption = element_text(hjust = 0.5)
+  )
 ```
 
-## Plot and text
+# 3 - Outer Space Object Launch Prediction
 
-::: columns
-::: {.column width="50%"}
--   Some text
-
--   goes here
-:::
-
-::: {.column width="50%"}
-```{r, warning=FALSE, fig.width=5.5}
-penguins |>
-  ggplot(aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot(linewidth = 0.75,
-               outlier.size = 2.5) +
-  theme_minimal(base_size = 15) +
-  theme(legend.key.size = unit(0.8, "cm"))
-```
-:::
-:::
-
-# A new section...
-
-## Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r}
-penguins |> 
-  head() |>
-  kableExtra::kable() |>
-  kableExtra::kable_styling()
-```
-
-## Images
-
-![Image credit: Danielle Navarro, Percolate.](images/watercolour_sys02_img34_teacup-ocean.png){fig-align="center" width="500"}
-
-## Math Expressions {.smaller}
-
-You can write LaTeX math expressions inside a pair of dollar signs, e.g. \$\\alpha+\\beta\$ renders $\alpha + \beta$. You can use the display style with double dollar signs:
-
-```         
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-```
-
-$$
-\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i
-$$
-
-Limitations:
-
-1.  The source code of a LaTeX math expression must be in one line, unless it is inside a pair of double dollar signs, in which case the starting `$$` must appear in the very beginning of a line, followed immediately by a non-space character, and the ending `$$` must be at the end of a line, led by a non-space character;
-
-2.  There should not be spaces after the opening `$` or before the closing `$`.
-
-# Wrap up
-
-## Feeling adventurous?
-
--   You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
-
--   But some of you might want to play around with slide styling. Some solutions for this can be found at https://quarto.org/docs/presentations/revealjs.
+[Outer Space Objects Prediction](https://manasppanse.shinyapps.io/outer-space-object-launch-prediction-app/)

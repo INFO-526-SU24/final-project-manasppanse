@@ -2,10 +2,10 @@
 title: "Analysis of Outer Space Objects"
 subtitle: "INFO 526 - Summer 2024 - Final Project - Proposal"
 author:
-  - name: "Manas Panse"
+  - name: "Manas P Panse"
     affiliations:
       - name: "iSchool, University of Arizona"
-description: "A comparison of the Outer Space Objects recorded by different entities since the 1950."
+description: "A comparison of the Outer Space Objects recorded by different entities since the 1950s."
 format:
   html:
     code-tools: true
@@ -46,11 +46,13 @@ knitr::opts_chunk$set(
   dpi = 300             # higher dpi, sharper image
 )
 
-# Loading Necessary Packages
-pacman::p_load("dplyr", "here", "knitr", "tidyverse")
+# Loading Packages
+pacman::p_load("dplyr", "gsubfn", "here", "knitr", "tidyr", "stringr", "tidyverse")
+pacman::p_load("rworldmap", "rworldxtra", "maps", "ggplot2", "patchwork", "gtable", "gt")
 
 # Loading Necessary Dataset
 space_data <- read.csv(here("data/outer_space_objects.csv"))
+gdp_data <- read.csv(here("data/gdp_data_top_5.csv"))
 ```
 
 # 3 - Dataset
@@ -60,6 +62,7 @@ space_data <- read.csv(here("data/outer_space_objects.csv"))
 #| message: false
 
 glimpse(space_data)
+glimpse(gdp_data)
 ```
 
 I have chosen this Outer Space Objects dataset. This dataset contains detailed information about the various entities launching outer space objects over the course of time. Each entry or record contains the entity's name, the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for some specific entities, the year when this observation was captured, and the number of objects launched.
@@ -72,14 +75,22 @@ This dataset also allows me to explore the dynamics of contributions from variou
 #| label: dataset-summary
 #| message: false
 
-data_summary <- paste(
+space_data_summary <- paste(
   nrow(space_data), min(space_data$Year), max(space_data$Year)
 )
 
-print(data_summary)
+print(space_data_summary)
+
+gdp_data_summary <- paste(
+  nrow(gdp_data)
+)
+
+print(gdp_data_summary)
 ```
 
-The dataset "outer_space_objects.csv" contains 1175 entries with information on outer space objects recorded by different entities. The columns in it are : 'Entity', 'Code', 'Year', and 'num_objects'. The dataset spans from 1957, to the most recent 2023. Since this dataset is not only very comprehensive, but also primarily quantitative, it allows for a detailed analysis of trends and contributions over time.
+The dataset `outer_space_objects.csv` contains 1175 entries with information on outer space objects recorded by different entities. The columns in it are : 'Entity', 'Code', 'Year', and 'num_objects'. The dataset spans from 1957, to the most recent 2023. Since this dataset is not only very comprehensive, but also primarily quantitative, it allows for a detailed analysis of trends and contributions over time.
+
+The dataset `gdp_data_top_5.csv` contains 5 entries with information on GDPs of the BIG 5. The columns in it are : 'Country.Name', 'Country.Code', 'Indicator.Name', 'Indicator.Code', 'X2018', 'X2019', 'X2020', 'X2021', 'X2022', and 'X2023'.
 
 # 4 - Questions
 
@@ -91,74 +102,78 @@ The dataset "outer_space_objects.csv" contains 1175 entries with information on 
 
 ***Q3 is NOT a necessary question, but I'm just curious, so I'm going to attempt it.***
 
-(3) If we have to predict the next 10 years, will the entities with a great record in last 10 years hold their position ?
+(3) If we have to predict the future, how will the the outer space object launch trend line look like ?
 
 # 5 - Analysis Plan
 
+***Based on my analysis, analysis plan has been altered.***
+
 1.  Trends Over the Years :
+    1.  Variables Involved - `Year`, `total_objects`.
+    2.  Plan :
+        -   Aggregate the space data by year.
+        -   Create a smooth line plot to show the trend of total objects launched over the years.
+        -   Create a line plot to show the accurate trend of total objects launched over the years, highlighting any discrepancies in trends.
+        -   Highlight recent years for focus.
+2.  BIG 5 :
+    1.  Overall Space Launch Trends :
+        -   Variables Involved - `Year`, `total_objects`, `Entity`.
+        -   Plan -
+            -   Aggregate the space data for the TOP 5 economies based on their GDP.
+            -   Create a smooth line plot to visualize the number of objects launched by the BIG 5 since the 1950s.
+            -   Use GDP data to provide context and insights into the space launch capabilities.
+    2.  Geo - Distribution of Recent Launch Trends :
+        -   Variables Involved - `world_map`, `Latitude`, `Longitude`, `total_objects`, `Entity`
+        -   Plan -
+            -   Use a world map to plot the geographic distribution of recent space launches.
+            -   Overlay the launch data onto the geographic centers (centroids) of the BIG 5 respectively.
+            -   Use size points to represent the total number of objects launched.
+3.  Outer Space Launch Prediction :
+    -   Variables Involved - `yearly_data`, `forecast_model`
+    -   Plan -
+        -   Implement a forecast model to predict future launches.
+        -   Allow user to choose the prediction model from ARIMA, ETS, and TBATS, as well as the number of years to forecast (LIMIT 27).
+        -   Display the forecast results with confidence intervals on a line plot.
 
--   Variables Involved :
-    -   outer_space_objects.csv dataset : `Entity`, `Year`, `num_objects`
--   Plan :
-    -   Aggregate the data by year and then sum the number of objects.
-    -   Plot a time series to visualize this trend.
-
-2.  Contributions by Entity:
--   Variables Involved :
-    -   outer_space_objects.csv dataset : `Entity`, `Year`, `num_objects`,
-    -   gdp_data.csv dataset : Calculated variable - `latest_gdp`
--   Plan :
-    -   Aggregate the data by entity and year for the space launch data.
-    -   Use a bubble map to visualize the contributions over time.
-    -   Separately analyze GDP data to identify the top 5 economies over the years.
-    -   Integrate the insights from both datasets to answer the question about how space launch programs have reacted to changes in their respective economies.
-
-# 6 - Plan of Attack
+# 6 - Modus Operandi
 
 ***I have something in mind for this, I just hope it's possible.***😣
 
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Task Name                                  | Status     | Due     | Priority | Summary                                                                                                   |
-+:==========================================:+:==========:+:=======:+:========:+:=========================================================================================================:+
-| Project Proposal for Peer Review           | complete   | 29-May  | High     | Submit the project proposal for peer review starting on May 29, 2024.                                     |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Incorporate Peer Reviews                   | complete   | 2-Jun   | High     | Incorporate any changes suggested by my peers in the peer review sections.                                |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Project Proposal for Instructor Review     | complete   | 3-Jun   | High     | Submit the project proposal for instructor review starting on June 3, 2024, after peer feedback.          |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Finalize Project Outline                   | incomplete | 4-Jun   | High     | Amend the `proposal.qmd` with feedback from classmates and professor.                                     |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Aggregate Yearly Data                      | incomplete |         | High     | Aggregate the data by year to get the total number of outer space objects recorded each year.             |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Identify Top Entities                      | incomplete |         | High     | Identify the top entities contributing to the recorded outer space objects. Focus on the top 10 entities. |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Analyze Yearly Trends                      | incomplete |         | High     | Analyze the trends in the number of recorded outer space objects over the years.                          |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Entity Contribution Trends                 | incomplete |         | High     | Analyze how the contributions of the top entities have changed over time using a bubble map.              |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Analyze GDP Data for Top Economies         | incomplete |         | High     | Identify the top 5 economies over the years using GDP data and analyze their trends.                      |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Integrate Space Launch and GDP Insights    | incomplete |         | High     | Integrate insights from space launch and GDP data to answer space launch based on economy questions.      |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Include all References & Citations         | inprogress | 24-Jun  | High     | List all the references & citations used in the project.                                                  |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Finalize Report & Presentation             | incomplete | 24-Jun  | High     | Finalize the report and prepare the presentation for final submission on June 24, 2024.                   |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Visualization Techniques                   | incomplete |         | Moderate | Experiment with different visualization formats to find the best way to present the trends.               |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Draft Initial Report                       | incomplete |         | Moderate | Draft the initial report summarizing the findings and trends from the analysis.                           |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Peer Review & Feedback                     | incomplete |         | Moderate | Conduct peer review of the initial report and visualizations to gather feedback and make adjustments.     |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Prepare Conclusion and Future Work         | incomplete |         | Moderate | Summarize key insights and suggest potential areas for further research or data collection improvements.  |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Finalize the `index.qmd`                   | incomplete | 20-Jun  | Low      | Finalize the main report file `index.qmd`.                                                                |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Finalize the `presentation.qmd`            | incomplete | 20-Jun  | Low      | Finalize the presentation file `presentation.qmd`.                                                        |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
-| Record the Presentation                    | incomplete | 24-Jun  | Low      | Complete and record the presentation.                                                                     |
-+--------------------------------------------+------------+---------+----------+-----------------------------------------------------------------------------------------------------------+
+***I had something in mind for this, I just hoped it's possible. IT IS AND I DID IT.*** 😎
 
-# 7 - Citations
+```{r}
+#| label: modus-operandi
+#| echo: false
 
-***All the referred sources will go here.***
+# Pulling M.O
+plan <- read.csv(here("data/modusoperandi.csv"))
+
+# Creating the gt Table with Conditional Row Styling
+plan_table <- plan %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modus Operandi**"),
+    subtitle = md("*Analysis of Outer Space Object Launches*")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = alpha("red", 0.5)),
+    locations = cells_body(
+      rows = Status == "Incomplete"
+    )
+  ) %>%
+  tab_style(
+    style = cell_fill(color = alpha("yellow", 0.5)),
+    locations = cells_body(
+      rows = Status == "Inprogress"
+    )
+  ) %>%
+  tab_style(
+    style = cell_fill(color = alpha("green", 0.5)),
+    locations = cells_body(
+      rows = Status == "Completed"
+    )
+  )
+
+# Displaying M.O
+plan_table
+```

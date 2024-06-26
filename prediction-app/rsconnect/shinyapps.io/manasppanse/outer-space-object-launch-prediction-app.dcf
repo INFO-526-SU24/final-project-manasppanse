@@ -1,0 +1,12 @@
+name: outer-space-object-launch-prediction-app
+title: outer-space-object-launch-prediction-app
+username: manasppanse
+account: manasppanse
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12228985
+bundleId: 8783131
+url: https://manasppanse.shinyapps.io/outer-space-object-launch-prediction-app/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

@@ -1,22 +1,334 @@
 ---
-title: "Project Title"
-subtitle: "INFO 526 - Summer 2024 - Final Project"
-author: 
-  - name: "Team name"
+title: "Analysis of Outer Space Objects"
+subtitle: "INFO 526 - Summer 2024 - Final Project - Proposal"
+author:
+  - name: "Manas P Panse"
     affiliations:
-      - name: "School of Information, University of Arizona"
-description: "Project description"
+      - name: "iSchool, University of Arizona"
+description: "A comparison of the Outer Space Objects recorded by different entities since the 1950s."
 format:
    html:
+    code-fold: true
     code-tools: true
     code-overflow: wrap
     embed-resources: true
 editor: visual
 execute:
   warning: false
-  echo: false
+  messae: false
+  error: false
 ---
 
-## Abstract
+# 0 - Abstract & Workplace Setup
 
-Add project abstract here.
+This project aims to analyze the trends and predict future activities of countries involved in launching outer space objects since 1957 till 2023. For this, I am utilizing the dataset, `outer_space_objects.csv`, sourced from [TidyTuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2024/2024-04-23/readme.md), originally sourced from United Nations Office of Outer Space Affairs. Another dataset, `gdp_data_top_5.csv`, compiled from information from World Bank Database, is also being utilized here.
+
+My analysis is divided into several KEY sections :
+
+1.  Trends Over The Years :
+
+    -   Aggregating and visualizing the total number of objects launched globally from 1957 to 2023.
+    -   Using ggplot2 to create smooth and accurate time-series plots to illustrate the overall trends, and highlighting specific periods of space activity, to provide strategic insights.
+
+2.  The BIG 5 :
+
+    -   Identifying and focusing on the top five countries with the highest GDPs - United States, China, Germany, Japan, and India. By filtering the dataset, analyzing the launch trends of these countries, while also providing insights into the relationship between their GDPs and the number of objects launched.
+    -   Creating smooth line plots visualizing the trend in the number of objects launched by them since the 1950s.
+    -   Providing a panoramic perspective by creating a world map plot showcasing the geographic distribution of the most recent launches, along with size points representing the total number of objects launched by them.
+
+3.  Outer Space Object Launch Prediction :
+
+    -   In order to forecast the number of outer space objects that will be launched in the future, develop an interactive Shiny application.
+    -   Users can choose between different forecasting models, which are ARIMA, ETS, and TBATS.
+    -   The application will generate dynamic visualizations and summaries, allowing users to explore various scenarios and gain insights into future trends.
+
+```{r}
+#| label: Workspace-Setup
+#| code-summary: "Workspace Setup"
+
+# Plot Theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# Set Width of Code Output
+options(width = 65)
+
+# Set Figure Parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 7,        # 7" Width
+  fig.asp = 0.618,      # The Golden Ratio
+  fig.retina = 3,       # DPI Multiplier for Displaying HTML Output on Retina
+  fig.align = "center", # Center Align Figures
+  dpi = 300             # Higher DPI, Sharper Image
+)
+
+# Loading Packages
+pacman::p_load("dplyr", "ggplot2", "grid", "gridExtra", "gsubfn", "here", "knitr", "maps", "stringr", "tidyr", "tidyverse")
+pacman::p_load("gganimate", "forecast", "shiny")
+
+space_data <- read.csv(here("data/outer_space_objects.csv"))
+gdp_data <- read.csv(here("data/gdp_data_top_5.csv"))
+```
+
+# 1 - Trends Over The Years
+
+```{r}
+#| label: Trends-Over-the-Years-A
+#| code-summary: "Trends Over The Years"
+#| warning: false
+#| messae: false
+#| error: false
+
+# Data-Aggregation-By-Year
+yearly_data <- space_data %>%
+  group_by(Year) %>%
+  summarize(total_objects = sum(num_objects))
+
+common_breaks <- c(1960, 1980, 2000, 2020)
+
+# This Plot was ONLY used during Presentation. 
+
+# Time-Series-Plot
+yearly_trend_plot_1 <- yearly_data %>%
+  ggplot(aes(x = Year, y = total_objects)) +
+  geom_smooth(se = FALSE, color = "blue") +
+  theme_minimal() +
+  labs(
+    title = "Outer Space Object Launches by Year (1957 - 2023)",
+    subtitle = "Global Launches Combined",
+    x = "Year",
+    y = "Total Number of Objects Launched",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to : Landers, Probes, Satellites, etc."
+  ) +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0.5)
+  ) +
+  annotate("rect", xmin = 2018, xmax = 2024, ymin = 750, ymax = 5400, alpha = 0, fill = "white", size = 0) +
+  annotate("rect", xmin = 2021, xmax = Inf, ymin = 750, ymax = 5400, alpha = 0, fill = "white", size = 0) +
+  scale_x_continuous(breaks = common_breaks)
+
+yearly_trend_plot_1
+```
+
+```{r}
+#| label: Trends-Over-the-Years-B
+#| code-summary: "Trends Over The Years - Focus Areas"
+#| warning: false
+#| messae: false
+#| error: false
+
+# Time-Series-Plot
+yearly_trend_plot_2 <- yearly_data %>%
+  ggplot(aes(x = Year, y = total_objects)) +
+  geom_line(color = "blue") +
+  geom_point(color = "red", size = 0.75) +
+  theme_minimal() +
+  labs(
+    title = "Outer Space Object Launches by Year (1957 - 2023)",
+    subtitle = "Global Launches Combined - Focus Areas",
+    x = "Year",
+    y = "Total Number of Objects Launched",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to : Landers, Probes, Satellites, etc."
+  ) +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0.5)
+  ) +
+  annotate("rect", xmin = 2018, xmax = 2024, ymin = 250, ymax = 5400, alpha = .25, fill = "green", size = 0) +
+  annotate("rect", xmin = 2021, xmax = Inf, ymin = 250, ymax = 5400, alpha = .25, fill = "red", size = 0) +
+  scale_x_continuous(breaks = common_breaks)
+
+yearly_trend_plot_2
+```
+
+# 2 - The BIG 5
+
+```{r}
+#| label: Renaming-Columns-GDP-Data
+#| code-summary: "Renaming Columns in GDP Data"
+#| warning: false
+#| messae: false
+#| error: false
+
+colnames(gdp_data) <- gsub("^X", "", colnames(gdp_data))
+colnames(gdp_data) <- gsub("\\.", " ", colnames(gdp_data))
+```
+
+```{r}
+#| label: Space-Data-BIG-5-Filtering
+#| code-summary: "Filtering Space Data w.r.t BIG 5 GDP Data"
+#| warning: false
+#| messae: false
+#| error: false
+
+# Filtering Space Launch Data for the BIG 5 using the GDP Data of the BIG 5
+top_5_countries <- gdp_data$`Country Name`
+
+space_data_top_5 <- space_data %>%
+  filter(Entity %in% top_5_countries)
+```
+
+```{r}
+#| label: Aggregating-Space-Data
+#| code-summary: "Aggregating Space Data, GDP Data & Combining Both"
+#| warning: false
+#| messae: false
+#| error: false
+
+launch_trends <- space_data_top_5 %>%
+  group_by(Year, Entity) %>%
+  summarise(total_objects = sum(num_objects), .groups = 'drop') %>%
+  ungroup()
+
+country_order <- c("United States", "China", "Germany", "Japan", "India")
+
+# Convert the 'Entity' column to a factor with the specified order
+launch_trends$Entity <- factor(launch_trends$Entity, levels = country_order)
+
+gdp_long <- gdp_data %>%
+  pivot_longer(cols = '2018':'2023', names_to = "Year", values_to = "GDP") %>%
+  mutate(Year = as.integer(Year))
+
+Space_GDP_Data <- launch_trends %>%
+  inner_join(gdp_long, by = c("Entity" = "Country Name", "Year"))
+
+Space_GDP_Data$GDP <- as.numeric(gsub(",", "", Space_GDP_Data$GDP))
+
+centroid_data <- data.frame(
+  Entity = c("China", "Germany", "India", "Japan", "United States"),
+  lat = c(38.07325481, 51.0830454, 23.58630057, 36.76738833, 38.82080892),
+  lon = c(104.6911386, 10.42617143, 81.17300409, 137.4693423, -96.33161661)
+)
+Space_GDP_Data_2 <- Space_GDP_Data %>%
+  inner_join(centroid_data, by = "Entity")
+```
+
+## 2A - Overall Trends
+
+```{r}
+#| label: BIG-5-Comparison-Plot
+#| code-summary: "BIG 5 Comparison Plot"
+#| warning: false
+#| messae: false
+#| error: false
+
+# Line Plot of Number of Objects Launched by the BIG 5 Countries
+ggplot(launch_trends, aes(x = Year, y = total_objects, color = Entity)) +
+  geom_smooth(se = FALSE, size = 1) +
+  scale_color_manual(
+    values = c(
+      "United States" = "cyan",
+      "China" = "red",
+      "Germany" = "green",
+      "Japan" = "yellow",
+      "India" = "orange"
+    ),
+    name = "Country"
+  ) +
+  labs(
+    title = "Outer Space Object Launches by the BIG 5 by Year (1958 - 2023)",
+    x = "Year",
+    y = "Total Objects Launched",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to: Landers, Probes, Satellites, etc.\nGDP Data Collected from : World Bank Database."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    legend.position = "top",
+    legend.justification = c("center", "top"),
+    legend.background = element_rect(fill = alpha('white', 0.5)),
+    plot.caption = element_text(hjust = 0.5)
+  )
+```
+
+## 2B - Broader Perspective
+
+```{r}
+#| label: BIG-5-World-Map
+#| code-summary: "BIG 5 World Map"
+#| warning: false
+#| messae: false
+#| error: false
+
+# Loading World Map Data
+world_map <- map_data("world")
+
+# Defining Country Colors
+country_colors <- c(
+  "United States" = "cyan",
+  "China" = "red",
+  "Germany" = "green",
+  "Japan" = "yellow",
+  "India" = "orange"
+)
+
+# Correcting Country Names in the World Map Data to match the Specified Country Names
+world_map <- world_map %>%
+  mutate(region = case_when(
+    region == "USA" ~ "United States",
+    region == "China" ~ "China",
+    region == "Germany" ~ "Germany",
+    region == "Japan" ~ "Japan",
+    region == "India" ~ "India",
+    TRUE ~ region
+  ))
+
+# Adding Color based on Country
+world_map <- world_map %>%
+  mutate(fill = case_when(
+    region == "United States" ~ "cyan",
+    region == "China" ~ "red",
+    region == "Germany" ~ "green",
+    region == "Japan" ~ "yellow",
+    region == "India" ~ "orange",
+    TRUE ~ "lightgray"
+  ))
+
+# Plotting Map
+ggplot() +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group, fill = fill), color = "white") +
+  geom_point(data = Space_GDP_Data_2, aes(x = lon, y = lat, size = total_objects), alpha = 0.1) +
+  scale_size(range = c(3, 15)) +
+  scale_fill_identity() +
+  labs(
+    title = "Geo - Distribution of Launches by the BIG 5 by Year (2018 - 2023)",
+    subtitle = "Size of the Points Represents Total Objects Launched",
+    x = "Longitude",
+    y = "Latitude",
+    size = "Total Objects",
+    caption = "Space Data Collected from : United Nations Office of Outer Space Affairs\nObjects include, but are not limited to : Landers, Probes, Satellites, etc.\nGDP Data Collected from : World Bank Database."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12.5, hjust = 0.5),
+    plot.subtitle = element_text(size = 7.5, hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    legend.position = "right",
+    legend.title = element_text(size = 7.5),
+    legend.text = element_text(size = 7),
+    plot.caption = element_text(hjust = 0.5)
+  )
+```
+
+# 3 - Outer Space Object Launch Prediction App
+
+[Outer Space Object Launch Prediction App](https://manasppanse.shinyapps.io/outer-space-object-launch-prediction-app/)
+
+# 4 - Citations
+
+Centroid Data - https://github.com/gavinr/world-countries-centroids
+
+Referred & used this, but later dropped the idea - https://stackoverflow.com/questions/14726078/changing-title-in-multiplot-ggplot2-using-grid-arrange
+
+Prediction & Forecasting - https://www.youtube.com/watch?v=6gmCNGRrRBs&pp=ygUQYXJpbWEgbW9kZWwgaW4gcg%3D%3D
+
+https://www.youtube.com/watch?v=n8Qs5bUgzws&pp=ygUORVRTIG1vZGVsIGluIFI%3D
+
+https://www.youtube.com/watch?v=dkOayhU1_0I&pp=ygUQVEJBVFMgbW9kZWwgaW4gUg%3D%3D
+
+https://www.youtube.com/watch?v=7K3Arf-U39E&pp=ygUQVEJBVFMgbW9kZWwgaW4gUg%3D%3D

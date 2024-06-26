@@ -1,0 +1,15 @@
+﻿Task Name,Status,Due,Priority,Summary
+Project Proposal for Peer Review,Completed,29-May,High,"Submit the project proposal for peer review starting on May 29, 2024."
+Project Proposal for Instructor Review,Completed,3-Jun,High,"Submit the project proposal for instructor review starting on June 3, 2024, after peer feedback"
+Finalize Project Outline,Completed,4-Jun,High,Amend the proposal.qmd with feedback from classmates and professor.
+Trends Over The Years Plot,Completed,26-Jun,High,Created line plots to show the trend of total objects launched over the years and highlighted recent years.
+Data Aggregation for the BIG 5,Completed,26-Jun,High,Aggregated space launch data for the top 5 countries based on GDP data.
+BIG 5 Countries Bubble Plot,Completed,26-Jun,High,Created a bubble plot to visualize the number of objects launched by each country over the years with GDP context.
+Geo-Distribution Plot,Completed,26-Jun,High,Created a geographical distribution plot of launches by the BIG 5 countries using world map data.
+Space Launch Prediction Model,Completed,26-Jun,High,"Implemented ARIMA, ETS, and TBATS models for predicting future space launches and allowed user inputs for model selection and forecast period."
+Shiny App Development,Completed,26-Jun,High,"Developed a Shiny app to allow user interaction for prediction model and forecast period, displaying results dynamically."
+Report Compilation,Completed,26-Jun,High,Compile the analysis and results into a comprehensive report.
+Finalize the index.qmd,Completed,26-Jun,Low,Finalize the main report file index.qmd.
+Finalize the presentation.qmd,Completed,26-Jun,Low,Finalize the presentation file presentation.qmd.
+Record the Presentation,Completed,26-Jun,Low,Complete and record the presentation.
+Submit All Files,Completed,26-Jun,High,"Push finalized changes to GitHub repository, and publish the website."
